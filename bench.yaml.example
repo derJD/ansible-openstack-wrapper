@@ -1,0 +1,70 @@
+---
+
+- hosts: localhost
+  vars:
+    os_cloud: fancycloud
+    os_keys:
+      jd-github:
+        file: /home/derJD/.ssh/id_rsa.pub
+    os_imgs:
+      debian-9-openstack:
+        file: /tmp/debian-9-openstack-amd64.qcow2
+        login: debian
+      xenial-server-cloudimg:
+        file: /tmp/xenial-server-cloudimg-amd64-disk1.img
+        login: ubuntu
+    os_nets:
+      jd:
+        net: 10.42.42.0/24
+        ext: ext42
+    os_ports: [ '22', '80', '443' ]
+    os_srvs:
+      jump01:
+        image: debian-9-openstack
+        flavor: flavor.42
+        key: jd-github
+        net: jd
+        fip: 'yes'
+      bench01: &srv
+        groups: ['instances', 'bench']
+        image: debian-9-openstack
+        flavor: flavor.42
+        key: jd-github
+        net: jd
+        via: jump01
+      bench02:
+        <<: *srv
+      bench03:
+        <<: *srv
+        image: xenial-server-cloudimg
+  tasks:
+    - stat: path=/tmp/debian-9-openstack-amd64.qcow2
+      register: f
+    - get_url: url=https://cdimage.debian.org/cdimage/openstack/current-9/debian-9-openstack-amd64.qcow2 dest=/tmp/
+      when: f.stat.exists == False
+    - stat: path=/tmp/xenial-server-cloudimg-amd64-disk1.img
+      register: f
+    - get_url: url=https://cloud-images.ubuntu.com/xenial/current/xenial-server-cloudimg-amd64-disk1.img dest=/tmp/
+      when: f.stat.exists == False
+    - include_role: name=openstack
+
+- hosts: bench
+  tasks:
+    - apt:
+        name: "{{ item }}"
+        update_cache: 'yes'
+      with_items:
+        - ethtool
+        - iperf
+
+- hosts: bench01
+  tasks:
+    - name: Start iperf server
+      command: iperf -s -D
+
+- hosts:
+    - bench02
+    - bench03
+  tasks:
+    - name: Run iperf client
+      command: "iperf -i 1 -t 300 -c bench01"

@@ -1,0 +1,41 @@
+---
+
+- os_network:
+    cloud: "{{ os_cloud }}"
+    name: "{{ item }}-net"
+  with_items: "{{ os_nets }}"
+    
+- os_subnet:
+    cloud: "{{ os_cloud }}"
+    name: "{{ item }}-subnet"
+    network_name: "{{ item }}-net"
+    cidr: "{{ os_nets[item].net }}"
+  with_items: "{{ os_nets }}"
+
+- os_router:
+    cloud: "{{ os_cloud }}"
+    name: "{{ item }}-rt"
+    network: "{{ os_nets[item].ext | default('ext01') }}"
+    interfaces:
+      - "{{ item }}-subnet"
+  with_items: "{{ os_nets }}"
+
+- os_security_group:
+    cloud: "{{ os_cloud }}"
+    name: "{{ item }}-sec-grp"
+  with_items: "{{ os_nets }}"
+
+- os_security_group_rule:
+    cloud: "{{ os_cloud }}"
+    security_group: "{{ item }}-sec-grp"
+    protocol: icmp
+  with_items: "{{ os_nets }}"
+- os_security_group_rule:
+    cloud: "{{ os_cloud }}"
+    security_group: "{{ item.0 }}-sec-grp"
+    protocol: tcp
+    port_range_min: "{{ item.1 }}"
+    port_range_max: "{{ item.1 }}"
+  with_nested:
+    - "{{ os_nets }}"
+    - "{{ os_ports }}"

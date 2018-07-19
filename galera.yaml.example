@@ -1,0 +1,63 @@
+---
+
+- hosts: localhost
+  vars:
+    os_cloud: fancycloud
+    os_keys:
+      jd-github:
+        file: /home/derJD/.ssh/id_rsa.pub
+    os_imgs:
+      debian-9-openstack:
+        file: /tmp/debian-9-openstack-amd64.qcow2
+        login: debian
+      xenial-server-cloudimg:
+        file: /tmp/xenial-server-cloudimg-amd64-disk1.img
+        login: ubuntu
+    os_nets:
+      jd:
+        net: 10.42.42.0/24
+        ext: ext42
+    os_ports: [ '22', '80', '443' ]
+    os_srvs:
+      jump01:
+        groups:
+          - 'instances'
+        image: debian-9-openstack
+        flavor: falvor.42
+        key: jd-github
+        net: jd
+        fip: 'yes'
+      galera01: &srv
+        groups: ['instances', 'galera']
+        image: debian-9-openstack
+        flavor: flavor.42
+        key: jd-github
+        net: jd
+        via: jump01
+      galera02:
+        <<: *srv
+      galera03:
+        <<: *srv
+  tasks:
+    - stat: path=/tmp/debian-9-openstack-amd64.qcow2
+      register: f
+    - get_url: url=https://cdimage.debian.org/cdimage/openstack/current-9/debian-9-openstack-amd64.qcow2 dest=/tmp/
+      when: f.stat.exists == False
+    - stat: path=/tmp/xenial-server-cloudimg-amd64-disk1.img
+      register: f
+    - get_url: url=https://cloud-images.ubuntu.com/xenial/current/xenial-server-cloudimg-amd64-disk1.img dest=/tmp/
+      when: f.stat.exists == False
+    - include_role: name=openstack
+
+- hosts: galera
+  tasks:
+    - apt:
+        name: "{{ item }}"
+        ensure: present
+      with_items:
+        - mariadb-common
+        - mariadb-server
+        - mariadb-client
+        - galera-3
+        - percona-xtrabackup-24
+# [...]
