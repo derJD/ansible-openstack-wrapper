@@ -1,4 +1,4 @@
-# Ansible OpenStack Wrapper
+# openstack-wrapper
 
 This Role is a wrapper for [ansible cloud openstack modules](https://docs.ansible.com/ansible/latest/modules/list_of_cloud_modules.html#openstack). 
 It deploys (multiple) ssh-keys, images, networks, security groups and instances. Every instance will be addded to your inventory and usable for further tasks.
