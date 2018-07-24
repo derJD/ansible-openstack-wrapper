@@ -1,0 +1,21 @@
+---
+
+galaxy_info:
+  author: derJD
+  description: Ansible OpenStack wrapper for depoying and inventorize multiple instances
+  license: BSD
+  min_ansible_version: 2.5
+
+  platforms:
+    - name: Debian
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+
+  galaxy_tags:
+    - openstack-wrapper
+    - cloud
+
+dependencies: []
