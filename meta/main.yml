@@ -5,7 +5,7 @@ galaxy_info:
   description: Ansible OpenStack wrapper for depoying and inventorize multiple instances
   license: BSD
   min_ansible_version: 2.5
-
+  role_name: openstack_wrapper
   platforms:
     - name: Debian
       versions:
