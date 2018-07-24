@@ -15,7 +15,9 @@ galaxy_info:
         - all
 
   galaxy_tags:
-    - openstack-wrapper
+    - openstack
+    - instance
+    - system
     - cloud
 
 dependencies: []
