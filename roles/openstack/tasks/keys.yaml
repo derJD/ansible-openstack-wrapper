@@ -1,7 +1,0 @@
----
-
-- os_keypair:
-    cloud: "{{ os_cloud }}"
-    name: "{{ item }}"
-    public_key_file: "{{ os_keys[item].file }}"
-  with_items: "{{ os_keys }}"
