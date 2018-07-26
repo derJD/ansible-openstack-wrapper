@@ -126,6 +126,8 @@ deploys a jumphost and three galera nodes. galera and mariadb packages are insta
         key: jd-github
         net: misc
         fip: 'yes'
+  roles:
+    - derJD.openstack_wrapper
 
 - hosts: misc
   tasks:
