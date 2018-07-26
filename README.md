@@ -49,6 +49,7 @@ os_ports: [ '22', '80', '443' ]
 ### deploy instances
 To minimize Floating IP usage this playbook is able to reference jumphosts with the 'via' parameter.  
 Ansible will access such instances via ssh proxy command.  
+If you need persistant (boot)volumes you can do that by the 'size' parameter. (size in GB).
 Furthermore you can add groups to instances. These groups will be used as ansible hostgroups.
 
 > Instances will be split accross Zones. For that reason instance-names must be suffixed with two digit numbers.
@@ -68,6 +69,7 @@ os_srvs:
     key: jd-github
     net: jd
     via: jump01
+    size: '100'
 ```
 
 ### add instances to inventory
@@ -101,7 +103,7 @@ iperf and ethtool is istalled on all benchmark nodes. After that iperf-server is
 deploys a jumphost and three galera nodes. galera and mariadb packages are installed. 
 
 ```
-# deploy misc node and install htop on it
+# deploy misc node with persistent volume and install htop on it
 - hosts: localhost
   vars:
     os_cloud: fancycloud
@@ -126,6 +128,7 @@ deploys a jumphost and three galera nodes. galera and mariadb packages are insta
         key: jd-github
         net: misc
         fip: 'yes'
+        size: '75'
   roles:
     - derJD.openstack_wrapper
 

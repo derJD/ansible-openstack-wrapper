@@ -18,4 +18,6 @@
     network: "{{ os_srvs[item].net }}-net"
     security_groups: "{{ os_srvs[item].net }}-sec-grp"
     availability_zone: "{{ openstack.clouds.0.region_name }}{{ ( item[-2:] | int % 2 == 1 ) | ternary('a','b') }}"
+    boot_from_volume: "{{ ( os_srvs[item].size is defined ) }}"
+    volume_size: "{{ os_srvs[item].size | default(0) }}"
   with_items: "{{ os_srvs }}"
