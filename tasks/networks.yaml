@@ -1,18 +1,21 @@
 ---
 
-- os_network:
+- name: adding network
+  os_network:
     cloud: "{{ os_cloud }}"
     name: "{{ item }}-net"
   with_items: "{{ os_nets }}"
-    
-- os_subnet:
+
+- name: adding subnet
+  os_subnet:
     cloud: "{{ os_cloud }}"
     name: "{{ item }}-subnet"
     network_name: "{{ item }}-net"
     cidr: "{{ os_nets[item].net }}"
   with_items: "{{ os_nets }}"
 
-- os_router:
+- name: adding router
+  os_router:
     cloud: "{{ os_cloud }}"
     name: "{{ item }}-rt"
     network: "{{ os_nets[item].ext | default('ext01') }}"
@@ -20,17 +23,20 @@
       - "{{ item }}-subnet"
   with_items: "{{ os_nets }}"
 
-- os_security_group:
+- name: adding security group
+  os_security_group:
     cloud: "{{ os_cloud }}"
     name: "{{ item }}-sec-grp"
   with_items: "{{ os_nets }}"
 
-- os_security_group_rule:
+- name: allowing icmp
+  os_security_group_rule:
     cloud: "{{ os_cloud }}"
     security_group: "{{ item }}-sec-grp"
     protocol: icmp
   with_items: "{{ os_nets }}"
-- os_security_group_rule:
+- name: adding security group rules
+  os_security_group_rule:
     cloud: "{{ os_cloud }}"
     security_group: "{{ item.0 }}-sec-grp"
     protocol: tcp

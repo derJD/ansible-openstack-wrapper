@@ -1,6 +1,7 @@
 ---
 
-- os_image:
+- name: Uploading Images
+  os_image:
     cloud: "{{ os_cloud }}"
     name: "{{ item }}"
     filename: "{{ os_imgs[item].file }}"

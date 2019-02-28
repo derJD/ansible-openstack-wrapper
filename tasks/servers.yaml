@@ -1,10 +1,12 @@
 ---
 
-- os_client_config:
+- name: loading cloud config
+  os_client_config:
     clouds:
       - "{{ os_cloud }}"
 
-- os_server:
+- name: adding instance
+  os_server:
     name: "{{ item }}"
     cloud: "{{ os_cloud }}"
     image: "{{ os_srvs[item].image }}"

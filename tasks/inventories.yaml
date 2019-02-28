@@ -1,6 +1,7 @@
 ---
 
-- os_server_facts:
+- name: gathering openstack server facts
+  os_server_facts:
     cloud: "{{ os_cloud }}"
 
 - name: get jumpable hosts
@@ -27,43 +28,49 @@
   add_host:
     hostname: "{{ item.name }}"
     ansible_host: "{{ item.public_v4 | default(item.private_v4) }}"
-  when: item.name in os_srvs.keys() and item.public_v4 != ""
+  when: item.name in os_srvs.keys() and item.public_v4 | length > 0
   with_items: "{{ openstack_servers }}"
   loop_control:
     label: "{{ item.name }}"
 
-- debug: var=hostvars
-
 - name: adding jump host information to inventory
   add_host:
     hostname: "{{ item.name }}"
-    ansible_ssh_common_args: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -J {{ openstack_servers | selectattr('name', 'search', item.metadata.ansible_jump) | map(attribute='metadata.ansible_login') | list | first }}@{{ jump_ip[item.metadata.ansible_jump] }}"
+    ansible_ssh_common_args: >-
+      -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -J
+      {{ openstack_servers | selectattr('name', 'search', item.metadata.ansible_jump)
+      | map(attribute='metadata.ansible_login')
+      | list | first }}@{{ jump_ip[item.metadata.ansible_jump] }}
   when: item.name in os_srvs.keys() and item.name != item.metadata.ansible_jump
   with_items: "{{ openstack_servers }}"
   loop_control:
     label: "{{ item.name }}"
 
 - name: wait for instance to be reachable via ssh
-  local_action:
-    module: wait_for
-      host={{ item.public_v4 }}
-      port=22
-      delay=5
-      timeout=300
-  when: item.name in os_srvs.keys() and item.accessIPv4 != ""
+  wait_for: host={{ item.public_v4 }} port=22 delay=5 timeout=300
+  delegate_to: localhost
+  when: item.name in os_srvs.keys() and item.accessIPv4 | length > 0
   with_items: "{{ openstack_servers }}"
   loop_control:
     label: "{{ item.name }}"
 
 - debug:
-    msg: "{{ item.name }}: ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -J {{ openstack_servers | selectattr('name', 'search', item.metadata.ansible_jump) | map(attribute='metadata.ansible_login') | list | first }}@{{ jump_ip[item.metadata.ansible_jump] }} {{ item.metadata.ansible_login }}@{{ item.private_v4 }}"
+    msg: >-
+      {{ item.name }}:
+      ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -J
+      {{ openstack_servers | selectattr('name', 'search', item.metadata.ansible_jump)
+      | map(attribute='metadata.ansible_login')
+      | list | first }}@{{ jump_ip[item.metadata.ansible_jump] }} {{ item.metadata.ansible_login }}@{{ item.private_v4 }}
   with_items: "{{ openstack_servers }}"
   loop_control:
     label: "{{ item.name }}"
   when: item.name in os_srvs.keys() and item.name != item.metadata.ansible_jump
 
 - debug:
-    msg: "{{ item.name }}: ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null {{ os_imgs[os_srvs[item.metadata.ansible_jump].image].login }}@{{ item.public_v4 }}"
+    msg: >-
+      {{ item.name }}:
+      ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+      {{ os_imgs[os_srvs[item.metadata.ansible_jump].image].login }}@{{ item.public_v4 }}
   with_items: "{{ openstack_servers }}"
   loop_control:
     label: "{{ item.name }}"
