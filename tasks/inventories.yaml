@@ -60,7 +60,8 @@
       ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -J
       {{ openstack_servers | selectattr('name', 'search', item.metadata.ansible_jump)
       | map(attribute='metadata.ansible_login')
-      | list | first }}@{{ jump_ip[item.metadata.ansible_jump] }} {{ item.metadata.ansible_login }}@{{ item.private_v4 }}
+      | list | first }}@{{ jump_ip[item.metadata.ansible_jump] }}
+      {{ item.metadata.ansible_login }}@{{ item.private_v4 }}
   with_items: "{{ openstack_servers }}"
   loop_control:
     label: "{{ item.name }}"
