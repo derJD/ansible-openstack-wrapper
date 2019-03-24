@@ -1,2 +1,5 @@
 ---
 # vars file for openstack-wrapper
+
+az: 'abcdefghijklmnopqrstuvwxyz'
+os_az_count: 2

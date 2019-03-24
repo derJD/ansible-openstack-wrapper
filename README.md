@@ -52,7 +52,8 @@ Ansible will access such instances via ssh proxy command.
 If you need persistant (boot)volumes you can do that by the 'size' parameter. (size in GB).
 Furthermore you can add groups to instances. These groups will be used as ansible hostgroups.
 
-> Instances will be split accross Zones. For that reason instance-names must be suffixed with two digit numbers.
+> Instances will be split accross Zones. For that reason instance-names must contain numbers.
+> You can configure the number of availability zones by setting os_az_count (defaults to 2).
 
 ```
 os_srvs:
