@@ -28,6 +28,8 @@ Usualy ssh-keys are not added to root user. login user can be set here
 os_imgs:
   debian-9-openstack:
     file: /tmp/debian-9-openstack-amd64.qcow2
+    dest: /tmp/
+     url: https://cdimage.debian.org/cdimage/openstack/current-9/debian-9-openstack-amd64.qcow2
     login: debian
   xenial-server-cloudimg:
     file: /tmp/xenial-server-cloudimg-amd64-disk1.img
@@ -71,6 +73,8 @@ os_srvs:
     net: jd
     via: jump01
     size: '100'
+    nics:
+      - port-name: bench01
 ```
 
 ### add instances to inventory

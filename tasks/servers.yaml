@@ -5,25 +5,36 @@
     clouds:
       - "{{ os_cloud }}"
 
-- name: adding instance
-  os_server:
-    name: "{{ item }}"
-    cloud: "{{ os_cloud }}"
-    image: "{{ os_srvs[item].image }}"
-    flavor: "{{ os_srvs[item].flavor }}"
-    meta:
-      ansible_groups: "{{ os_srvs[item].groups | default(['instances']) | join(',') }}"
-      ansible_login: "{{ os_imgs[os_srvs[item].image].login | default('root') }}"
-      ansible_jump: "{{ os_srvs[item].via | default(item) }}"
-    key_name: "{{ os_srvs[item].key }}"
-    auto_ip: "{{ os_srvs[item].fip | default('no') }}"
-    network: "{{ os_srvs[item].net }}-net"
-    security_groups: "{{ os_srvs[item].net }}-sec-grp"
-    availability_zone: >-
-      {{ openstack.clouds.0.region_name +
-      az[( item | regex_replace('.*(\d+).*', '\1')
-      | int % os_az_count | int )] }}
-    boot_from_volume: "{{ ( os_srvs[item].size is defined ) }}"
-    volume_size: "{{ os_srvs[item].size | default(0) }}"
-    volumes: "{{ os_srvs[item].volumes | default([]) }}"
-  with_items: "{{ os_srvs }}"
+- block:
+    - name: adding instance
+      os_server:
+        network: "{{ os_srvs[item].net }}-net"
+      with_items: "{{ os_srvs }}"
+      when: os_srvs[item].nics is not defined
+
+    - name: adding instance
+      os_server:
+        nics: "{{ os_srvs[item].nics | default([]) }}"
+      with_items: "{{ os_srvs }}"
+      when: os_srvs[item].nics is defined
+
+  module_defaults:
+    os_server:
+      name: "{{ item }}"
+      cloud: "{{ os_cloud }}"
+      image: "{{ os_srvs[item].image }}"
+      flavor: "{{ os_srvs[item].flavor }}"
+      meta:
+        ansible_groups: "{{ os_srvs[item].groups | default(['instances']) | join(',') }}"
+        ansible_login: "{{ os_imgs[os_srvs[item].image].login | default('root') }}"
+        ansible_jump: "{{ os_srvs[item].via | default(item) }}"
+      key_name: "{{ os_srvs[item].key }}"
+      auto_ip: "{{ os_srvs[item].fip | default('no') }}"
+      security_groups: "{{ os_srvs[item].net }}-sec-grp"
+      availability_zone: >-
+        {{ openstack.clouds.0.region_name +
+        az[( item | regex_replace('.*(\d+).*', '\1')
+        | int % os_az_count | int )] }}
+      boot_from_volume: "{{ ( os_srvs[item].size is defined ) }}"
+      volume_size: "{{ os_srvs[item].size | default(0) }}"
+      volumes: "{{ os_srvs[item].volumes | default([]) }}"

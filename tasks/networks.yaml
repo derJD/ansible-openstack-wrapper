@@ -35,6 +35,12 @@
     security_group: "{{ item }}-sec-grp"
     protocol: icmp
   with_items: "{{ os_nets }}"
+- name: allowing vrrp
+  os_security_group_rule:
+    cloud: "{{ os_cloud }}"
+    security_group: "{{ item }}-sec-grp"
+    protocol: 112
+  with_items: "{{ os_nets }}"
 - name: adding security group rules
   os_security_group_rule:
     cloud: "{{ os_cloud }}"

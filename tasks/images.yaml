@@ -7,3 +7,12 @@
     filename: "{{ os_imgs[item].file }}"
     properties: "{{ os_imgs[item].properties | default({}) }}"
   with_items: "{{ os_imgs }}"
+
+- stat: path={{ item.dest }}/{{ item.url | basename }}
+  register: f
+  with_items: "{{ os_imgs }}"
+  when: item.url is defined
+
+- get_url: url={{ item.url }} dest={{ item.dest }}
+  with_items: "{{ os_imgs }}"
+  when: item.url is defined and f.stat.exists == False
