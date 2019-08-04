@@ -1,5 +1,18 @@
 ---
 
+- name: Locate Downloaded Images
+  stat: path={{ os_imgs[item].dest }}/{{ os_imgs[item].url | basename }}
+  register: f
+  with_items: "{{ os_imgs }}"
+  when: os_imgs[item].url is defined
+
+- name: Download Images
+  get_url: url={{ os_imgs[item.item].url }} dest={{ os_imgs[item.item].dest }}
+  with_items: "{{ f.results }}"
+  when: os_imgs[item.item].url is defined and item.stat.exists == False
+  loop_control:
+    label: "{{ item.item }}"
+
 - name: Uploading Images
   os_image:
     cloud: "{{ os_cloud }}"
@@ -7,12 +20,3 @@
     filename: "{{ os_imgs[item].file }}"
     properties: "{{ os_imgs[item].properties | default({}) }}"
   with_items: "{{ os_imgs }}"
-
-- stat: path={{ item.dest }}/{{ item.url | basename }}
-  register: f
-  with_items: "{{ os_imgs }}"
-  when: item.url is defined
-
-- get_url: url={{ item.url }} dest={{ item.dest }}
-  with_items: "{{ os_imgs }}"
-  when: item.url is defined and f.stat.exists == False

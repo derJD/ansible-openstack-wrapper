@@ -29,7 +29,7 @@ os_imgs:
   debian-9-openstack:
     file: /tmp/debian-9-openstack-amd64.qcow2
     dest: /tmp/
-     url: https://cdimage.debian.org/cdimage/openstack/current-9/debian-9-openstack-amd64.qcow2
+    url: https://cdimage.debian.org/cdimage/openstack/current-9/debian-9-openstack-amd64.qcow2
     login: debian
   xenial-server-cloudimg:
     file: /tmp/xenial-server-cloudimg-amd64-disk1.img
@@ -118,6 +118,9 @@ deploys a jumphost and three galera nodes. galera and mariadb packages are insta
     os_imgs:
       debian-9-openstack:
         file: /tmp/debian-9-openstack-amd64.qcow2
+        dest: /tmp/
+        url: https://cdimage.debian.org/cdimage/openstack/current-9/debian-9-openstack-amd64.qcow2
+        login: debian
     os_nets:
       misc:
         net: 10.42.42.0/24
