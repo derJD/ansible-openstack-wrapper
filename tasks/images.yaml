@@ -9,7 +9,7 @@
 - name: Download Images
   get_url: url={{ os_imgs[item.item].url }} dest={{ os_imgs[item.item].dest }}
   with_items: "{{ f.results }}"
-  when: os_imgs[item.item].url is defined and item.stat.exists == False
+  when: os_imgs[item.item].url is defined and not item.stat.exists
   loop_control:
     label: "{{ item.item }}"
 
