@@ -45,7 +45,7 @@ A description of the settable variables for this role should go here, including 
 ### deploy security groups
 Currently only one security group can be created.
 ```
-os_ports: [ '22', '80', '443' ]
+os_ports: [ '22', '80', '443', '30000-32767' ]
 ```
 
 ### deploy instances
@@ -125,7 +125,7 @@ deploys a jumphost and three galera nodes. galera and mariadb packages are insta
       misc:
         net: 10.42.42.0/24
         ext: ext42
-    os_ports: [ '22', '80', '443' ]
+    os_ports: [ '22', '80', '443', '30000-32767' ]
     os_srvs:
       misc01:
         groups:
