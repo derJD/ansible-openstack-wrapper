@@ -38,3 +38,4 @@
       boot_from_volume: "{{ ( os_srvs[item].size is defined ) }}"
       volume_size: "{{ os_srvs[item].size | default(0) }}"
       volumes: "{{ os_srvs[item].volumes | default([]) }}"
+      terminate_volume: 'yes'
