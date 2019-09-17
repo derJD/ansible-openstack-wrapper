@@ -22,6 +22,7 @@
     os_server:
       name: "{{ item }}"
       cloud: "{{ os_cloud }}"
+      state: "{{ os_srvs[item].state | default('present') }}"
       image: "{{ os_srvs[item].image }}"
       flavor: "{{ os_srvs[item].flavor }}"
       meta:
